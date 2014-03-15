@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     CSOSAgent agent(1, 0.9, 0.01);
     MyDog dog("my dog");
     dog.connectAgent(&agent);
-    dog.setSps(2);
+    dog.setSps(5);
     // launch avatar
     dog.threadLaunch();
 

@@ -7,7 +7,6 @@
 
 #include <ode/ode.h>
 #include <drawstuff/drawstuff.h>
-#include <math.h>
 
 #define DRAWSTUFF_TEXTURE_PATH "/home/andy/Software/ode-0.13/drawstuff/textures"
 
@@ -51,13 +50,22 @@ static dGeomID box[9];
 
 static dReal delta_angle = 0.36;    // about 20'
 static dReal gain = 1.0;
-static dReal max_force = 200;
+static dReal max_force = 500;
 
 // sensors
-int heightSensor()
+const dReal *bodyPosition(int bid)
 {
-    const dReal *pos = dBodyGetPosition(body[0]);
-    return round(pos[2] * 10);    // get the height
+    return dBodyGetPosition(body[bid]);
+}
+
+void hingeAnchor(int hid, dVector3 anchor)
+{
+    dJointGetHingeAnchor(joint[hid], anchor);
+}
+
+dReal hingeAngle(int hid)
+{
+    return dJointGetHingeAngle(joint[hid]);
 }
 
 void moveLimb(int jtnum, int act)
@@ -80,6 +88,9 @@ void moveLimb(int jtnum, int act)
             dJointSetHingeParam(joint[jtnum], dParamFMax, max_force);
             dJointSetHingeParam(joint[jtnum], dParamVel, delta_angle * gain);
             break;
+        default:
+            printf("*** act is invalid!\n");
+            break;
     }
 }
 
@@ -92,7 +103,7 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
     // only collide things with the ground
     if (o1 != ground && o2 != ground) return;
 
-    const int N = 50;
+    const int N = 500;
     dContact contact[N];
     n = dCollide(o1, o2, N, &contact[0].geom, sizeof(dContact));
     if (n > 0)
@@ -149,14 +160,14 @@ void simLoop(int pause)
         // set stops
         for (int i = 0; i < 4; i++)    // 4 thighs
         {
-            dJointSetHingeParam(joint[i], dParamHiStop, 3.0);    // about 180'
-            dJointSetHingeParam(joint[i], dParamLoStop, -1.6);    // about -90'
+            dJointSetHingeParam(joint[i], dParamHiStop, thigh_histop * 3.14 / 180);    // about 90'
+            dJointSetHingeParam(joint[i], dParamLoStop, thigh_lostop * 3.14 / 180);    // about -60'
         }
 
         for (int i = 4; i < 8; i++)    // 4 calfs
         {
-            dJointSetHingeParam(joint[i], dParamHiStop, 0);    // about 0'
-            dJointSetHingeParam(joint[i], dParamLoStop, -3.0);    // about -180'
+            dJointSetHingeParam(joint[i], dParamHiStop, calf_histop * 3.14 / 180);    // about 0'
+            dJointSetHingeParam(joint[i], dParamLoStop, calf_lostop * 3.14 / 180);    // about -90'
         }
 
         dSpaceCollide(space, 0, &nearCallback);
@@ -200,7 +211,7 @@ void initModel()
     world = dWorldCreate();
     space = dHashSpaceCreate(0);
     contact_group = dJointGroupCreate(0);
-    dWorldSetGravity(world, 0, 0, -2);
+    dWorldSetGravity(world, 0, 0, -9.8);
     ground = dCreatePlane(space, 0, 0, 1, 0);
 
     // robot torso

@@ -9,25 +9,20 @@
 #ifndef BIROB_MOD_H_
 #define BIROB_MOD_H_
 
-// sensors
-int heightSensor();     // percieve the height of torso
+// stops
+const int thigh_histop = 88;
+const int thigh_lostop = -85;
+const int calf_histop = 0;
+const int calf_lostop = -170;
+
+// ****** sensors
+const dReal *bodyPosition(int bid);
+// hinges
+void hingeAnchor(int hid, dVector3 anchor);
+dReal hingeAngle(int hid);
 
 // actions
-void forthLeftThigh();
-void holdLeftThigh();
-void backLeftThigh();
-
-void forthRightThigh();
-void holdRightThigh();
-void backRightThigh();
-
-void forthLeftCalf();
-void holdLeftCalf();
-void backLeftCalf();
-
-void forthRightCalf();
-void holdRightCalf();
-void backRightCalf();
+void moveLimb(int jtnum, int act);
 
 // models
 void nearCallback(void *, dGeomID, dGeomID);

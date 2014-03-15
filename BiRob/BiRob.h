@@ -26,95 +26,67 @@ class BiRob: public CSThreadAvatar
     private:
         Agent::State percieveState()
         {
-            int height = heightSensor();
-            cur_height = height;    // save current height
-            printf("Height: %d\n", height);
-            return height;
+            const dReal *bpos = bodyPosition(0);    
+            cur_height = round(bpos[2]);   // save current torso height
+
+            // state is the combination of hinge angles
+            Agent::State st = 0;
+
+            // thighs
+            int thigh_angle_num =  thigh_histop - thigh_lostop;
+
+            dReal ang;
+            int dang;
+
+            ang = hingeAngle(0);
+            // convert to positive degree
+            dang = round(ang / 3.14 * 180) - thigh_lostop;
+            dang /= 10;     // reduce tenfold
+            printf("thigh 0 angle: %d\n", dang);
+            st += dang;   
+
+            ang = hingeAngle(1);
+            // convert to positive degree
+            dang = round(ang / 3.14 * 180) - thigh_lostop;
+            dang /= 10;     // reduce tenfold
+            printf("thigh 1 angle: %d\n", dang);
+            st += dang * pow(thigh_angle_num / 10, 1);   
+
+            // calfs
+            int calf_angle_num = calf_histop - calf_lostop;
+            
+            ang = hingeAngle(2);
+            // convert to positive degree
+            dang = round(ang / 3.14 * 180) - calf_lostop;
+            dang /= 10;     // reduce tenfold
+            printf("calf 2 angle: %d\n", dang);
+            st += dang * pow(thigh_angle_num / 10, 2);   // yeah, it's thigh_angle_num
+
+            ang = hingeAngle(3);
+            // convert to positive degree
+            dang = round(ang / 3.14 * 180) - calf_lostop;
+            dang /= 10;     // reduce tenfold
+            printf("calf 3 angle: %d\n", dang);
+            st += dang * pow(calf_angle_num / 10, 3);   
+
+            // plus torso height as the 4th dim
+            st += cur_height * pow(calf_angle_num / 10, 4);  // yeah, it's calf_angle_num
+
+            printf("Current State: %" ST_FMT "\n", st);
+            return st;
         }
 
         void performAction(Agent::Action act)
         {
-            // decode act to corresponding hinges
-            printf("act: %" ACT_FMT ": ", act);
+            printf("act: %" ACT_FMT "\n", act);
             int act_hinge;
             for (int i = 0; i < 4; i++)    // totally 4 hinges
             {
                 act_hinge = act % 3;
 
-                if (i == 0)    // Right Calf
-                {
-                    switch (act_hinge)
-                    {
-                        case 0:
-                            printf(", backRC");
-                            backRightCalf();
-                            break;
-                        case 1:
-                            printf(", holdRC");
-                            holdRightCalf();
-                            break;
-                        case 2:
-                            printf(", forthRC");
-                            forthRightCalf();
-                            break;
-                    }
-                }
-                else if (i == 1)    // Left Calf
-                {
-                    switch (act_hinge)
-                    {
-                        case 0:
-                            printf(", backLC");
-                            backLeftCalf();
-                            break;
-                        case 1:
-                            printf(", holdLC");
-                            holdLeftCalf();
-                            break;
-                        case 2:
-                            printf(", forthLC");
-                            forthLeftCalf();
-                            break;
-                    }
-                }
-                else if (i == 2)    // Right Thigh
-                {
-                    switch (act_hinge)
-                    {
-                        case 0:
-                            printf(", backRT");
-                            backRightThigh();
-                            break;
-                        case 1:
-                            printf(", holdRT");
-                            holdRightThigh();
-                            break;
-                        case 2:
-                            printf(", forthRT");
-                            forthRightThigh();
-                            break;
-                    }
-                }
-                else    // Left Thigh
-                {
-                    switch (act_hinge)
-                    {
-                        case 0:
-                            printf(", backLT");
-                            backLeftThigh();
-                            break;
-                        case 1:
-                            printf(", holdLT");
-                            holdLeftThigh();
-                            break;
-                        case 2:
-                            printf(", forthLT");
-                            forthLeftThigh();
-                            break;
-                    }
-                }
+                moveLimb(i, act_hinge);
 
-                act = act / 3;    // rest of act
+                act = act / 3;
             }
         }
 
@@ -132,8 +104,8 @@ class BiRob: public CSThreadAvatar
 
         float originalPayoff(Agent::State st)
         {
-            float fy = (float) (cur_height - 100);
-            printf("payoff: %f\n", fy);
+            float fy = (float) (cur_height * 10 - 65);  // height time 10
+            printf("height: %d, payoff: %f\n", cur_height, fy);
             return fy;
         }
 

@@ -9,8 +9,8 @@
 #include <math.h>
 #include <gimcs/CSOSAgent.h>
 #include <gimcs/Mysql.h>
-#include "mydog_mod.h"
-//#include "BiRob.h"
+#include "birob_mod.h"
+#include "BiRob.h"
 
 #define DRAWSTUFF_TEXTURE_PATH "/home/andy/Software/ode-0.13/drawstuff/textures"
 
@@ -30,15 +30,15 @@ int main(int argc, char **argv)
     initModel();    // initialize model
 
     // set up Agent and Avatar
-//    Mysql mysql;
-//    mysql.setDBArgs("localhost", "root", "huangk", "BiRob");
-//
-//    CSOSAgent agent(1, 0.9, 0.01);
-//    BiRob br("my BiRob");
-//    br.connectAgent(&agent);
-//    br.setSps(2);
-//    // launch avatar
-//    br.threadLaunch();
+    Mysql mysql;
+    mysql.setDBArgs("localhost", "root", "huangk", "BiRob");
+
+    CSOSAgent agent(1, 0.95, 0.01);
+    BiRob br("my BiRob");
+    br.connectAgent(&agent);
+    br.setSps(2);
+    // launch avatar
+    br.threadLaunch();
 
     // simulate the world
     dsSimulationLoop(argc, argv, 352, 288, &fn);
