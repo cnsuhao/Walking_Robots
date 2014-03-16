@@ -8,10 +8,10 @@
 #ifndef MYDOG_H_
 #define MYDOG_H_
 #include <math.h>
-#include <gimcs/CSThreadAvatar.h>
+#include <gamcs/CSThreadAvatar.h>
 #include "mydog_mod.h"
 
-using namespace gimcs;
+using namespace gamcs;
 
 class MyDog: public CSThreadAvatar
 {
@@ -72,7 +72,7 @@ class MyDog: public CSThreadAvatar
             }
         }
 
-        OSpace actionCandidates(Agent::State st)
+        OSpace availableActions(Agent::State st)
         {
             OSpace acts;
             if (count++ < 1000000)

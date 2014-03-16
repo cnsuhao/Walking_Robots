@@ -7,10 +7,10 @@
 
 #ifndef BIROB_H_
 #define BIROB_H_
-#include <gimcs/CSThreadAvatar.h>
+#include <gamcs/CSThreadAvatar.h>
 #include "birob_mod.h"
 
-using namespace gimcs;
+using namespace gamcs;
 
 class BiRob: public CSThreadAvatar
 {
@@ -90,7 +90,7 @@ class BiRob: public CSThreadAvatar
             }
         }
 
-        OSpace actionCandidates(Agent::State st)
+        OSpace availableActions(Agent::State st)
         {
             OSpace acts;
             if (count++ < 1000000)

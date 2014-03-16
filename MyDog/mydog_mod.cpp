@@ -7,6 +7,7 @@
 
 #include <ode/ode.h>
 #include <drawstuff/drawstuff.h>
+#include "mydog_mod.h"
 
 #define DRAWSTUFF_TEXTURE_PATH "/home/andy/Software/ode-0.13/drawstuff/textures"
 

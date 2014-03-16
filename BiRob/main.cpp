@@ -7,8 +7,8 @@
 #include <ode/ode.h>
 #include <drawstuff/drawstuff.h>
 #include <math.h>
-#include <gimcs/CSOSAgent.h>
-#include <gimcs/Mysql.h>
+#include <gamcs/CSOSAgent.h>
+#include <gamcs/Mysql.h>
 #include "birob_mod.h"
 #include "BiRob.h"
 

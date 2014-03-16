@@ -10,8 +10,8 @@
 #define BIROB_MOD_H_
 
 // stops
-const int thigh_histop = 88;
-const int thigh_lostop = -85;
+const int thigh_histop = 85;
+const int thigh_lostop = -70;
 const int calf_histop = 0;
 const int calf_lostop = -170;
 
