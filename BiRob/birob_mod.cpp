@@ -28,12 +28,12 @@
 #define TORSO_LENGTH 1
 #define TORSO_WIDTH 8
 #define TORSO_HEIGHT 1
-#define TORSO_MASS 0.1
+#define TORSO_MASS 0.05
 
 #define THIGH_LENGTH 0.5
 #define THIGH_WIDTH 1
 #define THIGH_HEIGHT 4
-#define THIGH_MASS 0.2
+#define THIGH_MASS 0.1
 
 #define CALF_LENGTH 0.5
 #define CALF_WIDTH 1
