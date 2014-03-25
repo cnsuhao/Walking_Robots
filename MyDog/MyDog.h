@@ -8,16 +8,16 @@
 #ifndef MYDOG_H_
 #define MYDOG_H_
 #include <math.h>
-#include <gamcs/CSThreadAvatar.h>
+#include <gamcs/Avatar.h>
 #include "mydog_mod.h"
 
 using namespace gamcs;
 
-class MyDog: public CSThreadAvatar
+class MyDog: public Avatar
 {
     public:
-        MyDog(std::string n) :
-            CSThreadAvatar(n), cur_height(-1), count(0)
+        MyDog(int i) :
+            Avatar(i), cur_height(-1), count(0)
     {
     }
         ~MyDog()

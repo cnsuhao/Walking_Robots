@@ -34,11 +34,11 @@ int main(int argc, char **argv)
     mysql.setDBArgs("localhost", "root", "huangk", "MyDog");
 
     CSOSAgent agent(1, 0.9, 0.01);
-    MyDog dog("my dog");
+    MyDog dog(0);
     dog.connectAgent(&agent);
     dog.setSps(5);
     // launch avatar
-    dog.threadLaunch();
+    dog.threadLoop();
 
     // simulate the world
     dsSimulationLoop(argc, argv, 352, 288, &fn);

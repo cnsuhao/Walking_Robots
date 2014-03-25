@@ -34,11 +34,11 @@ int main(int argc, char **argv)
     mysql.setDBArgs("localhost", "root", "huangk", "BiRob");
 
     CSOSAgent agent(1, 0.95, 0.01);
-    BiRob br("my BiRob");
+    BiRob br(0);
     br.connectAgent(&agent);
     br.setSps(2);
     // launch avatar
-    br.threadLaunch();
+    br.threadLoop();
 
     // simulate the world
     dsSimulationLoop(argc, argv, 352, 288, &fn);

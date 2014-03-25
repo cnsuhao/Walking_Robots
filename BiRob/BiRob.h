@@ -7,16 +7,16 @@
 
 #ifndef BIROB_H_
 #define BIROB_H_
-#include <gamcs/CSThreadAvatar.h>
+#include <gamcs/Avatar.h>
 #include "birob_mod.h"
 
 using namespace gamcs;
 
-class BiRob: public CSThreadAvatar
+class BiRob: public Avatar
 {
     public:
-        BiRob(std::string n) :
-                CSThreadAvatar(n), cur_height(-1), count(0)
+        BiRob(int i) :
+                Avatar(i), cur_height(-1), count(0)
         {
         }
         ~BiRob()
