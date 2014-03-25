@@ -14,6 +14,8 @@
 
 #define DRAWSTUFF_TEXTURE_PATH "/home/andy/Software/ode-0.13/drawstuff/textures"
 
+extern int save_memory;
+
 int main(int argc, char **argv)
 {
     // setup drawstuff callback functions
@@ -36,7 +38,7 @@ int main(int argc, char **argv)
     CSOSAgent agent(1, 0.9, 0.01);
     MyDog dog(0);
     dog.connectAgent(&agent);
-    dog.setSps(5);
+    dog.setSps(2);
     // launch avatar
     dog.threadLoop();
 
@@ -46,7 +48,8 @@ int main(int argc, char **argv)
     dCloseODE();
 
     // avatar
-//    agent.dumpMemoryToStorage(&mysql);
+    if (save_memory == 1)   // press 's' to save memory
+        agent.dumpMemoryToStorage(&mysql);
 
     destroyModel();
 

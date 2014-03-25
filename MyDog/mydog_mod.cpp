@@ -39,6 +39,8 @@
 #define CALF_HEIGHT 3
 #define CALF_MASS 1
 
+int save_memory = 0;
+
 // dynamics and objects (torso, 8 limbs)
 static dWorldID world;
 static dSpaceID space;
@@ -116,8 +118,8 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
             contact[i].surface.mu = dInfinity;
             contact[i].surface.slip1 = 0.1;
             contact[i].surface.slip2 = 0.1;
-            contact[i].surface.soft_erp = 0.5;
-            contact[i].surface.soft_cfm = 0.3;
+            contact[i].surface.soft_erp = 0.4;
+            contact[i].surface.soft_cfm = 0.2;
             dJointID c = dJointCreateContact(world, contact_group, &contact[i]);
             dJointAttach(c, dGeomGetBody(contact[i].geom.g1),
                     dGeomGetBody(contact[i].geom.g2));
@@ -145,10 +147,13 @@ void command(int cmd)
     switch (cmd)
     {
         case 'f':
-            moveLimb(7, 0);
+            dBodyAddForce(body[0], 10, 0, 0);
             break;
-        case 'j':
-            moveLimb(7, 2);
+        case 'b':
+            dBodyAddForce(body[0], -10, 0, 0);
+            break;
+        case 's':
+            save_memory = 1;
             break;
     }
 }

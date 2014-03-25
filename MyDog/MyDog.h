@@ -17,7 +17,7 @@ class MyDog: public Avatar
 {
     public:
         MyDog(int i) :
-            Avatar(i), cur_height(-1), count(0)
+            Avatar(i), cur_x(-1), cur_y(-1), cur_z(-1), pre_x(-1), pre_y(-1), count(0)
     {
     }
         ~MyDog()
@@ -28,31 +28,84 @@ class MyDog: public Avatar
         Agent::State percieveState()
         {
             const dReal *bpos = bodyPosition(0);    
-            cur_height = round(bpos[2] * 10);   // save current torso height
+            // save position
+            pre_x = cur_x;
+            pre_y = cur_y;
+            // get current position
+            cur_x = round(bpos[0]); 
+            cur_y = round(bpos[1]);
+            cur_z = round(bpos[2]);   
 
             // state is the combination of hinge angles
             Agent::State st = 0;
-            // thigs: 90' ~ -60'
-            for (int i=0; i<4; i++)
-            {
-                dReal ang = hingeAngle(i);
-                // convert to positive degree
-                int dang = round(ang / 3.14 * 180) + 65;
-                printf("thigh %d angle: %d\n", i, dang - 65);
 
-                st += dang * pow(150, i);   // 150 
-            }
+            // state is the combination of hinge angles
+            // thighs
+            int thigh_angle_num = thigh_histop - thigh_lostop;
+            dReal ang;
+            int dang;
 
-            // calfs: -90'~0'
-            for (int i=4; i<8; i++)
-            {
-                dReal ang = hingeAngle(i);
-                // convert to positive degree
-                int dang = round(ang / 3.14 * 180) + 95;
-                printf("calf %d angle: %d\n", i, dang - 95);
+            ang = hingeAngle(0);
+            // convert to positive degree
+            dang = round(ang / 3.14 * 180) - thigh_lostop;
+            dang /= 10;
+            printf("thigh 0 angle: %d\n", dang);
+            st += dang;
 
-                st += dang * pow(90, i);   // 90 
-            }
+            ang = hingeAngle(1);
+            // convert to positive degree
+            dang = round(ang / 3.14 * 180) - thigh_lostop;
+            dang /= 10;
+            printf("thigh 1 angle: %d\n", dang);
+            st += dang * pow(thigh_angle_num / 10, 1);
+
+            ang = hingeAngle(2);
+            // convert to positive degree
+            dang = round(ang / 3.14 * 180) - thigh_lostop;
+            dang /= 10;
+            printf("thigh 2 angle: %d\n", dang);
+            st += dang * pow(thigh_angle_num / 10, 2);
+
+            ang = hingeAngle(3);
+            // convert to positive degree
+            dang = round(ang / 3.14 * 180) - thigh_lostop;
+            dang /= 10;
+            printf("thigh 3 angle: %d\n", dang);
+            st += dang * pow(thigh_angle_num / 10, 3);
+
+            // calfs
+            int calf_angle_num = calf_histop - calf_lostop;
+
+            ang = hingeAngle(4);
+            // convert to positive degree
+            dang = round(ang / 3.14 * 180) - calf_lostop;
+            dang /= 10;     // reduce tenfold
+            printf("calf 4 angle: %d\n", dang);
+            st += dang * pow(thigh_angle_num / 10, 4);   // yeah, it's thigh_angle_num
+
+            ang = hingeAngle(5);
+            // convert to positive degree
+            dang = round(ang / 3.14 * 180) - calf_lostop;
+            dang /= 10;     // reduce tenfold
+            printf("calf 5 angle: %d\n", dang);
+            st += dang * pow(calf_angle_num / 10, 5);   
+
+            ang = hingeAngle(6);
+            // convert to positive degree
+            dang = round(ang / 3.14 * 180) - calf_lostop;
+            dang /= 10;     // reduce tenfold
+            printf("calf 6 angle: %d\n", dang);
+            st += dang * pow(calf_angle_num / 10, 6);   
+
+            ang = hingeAngle(7);
+            // convert to positive degree
+            dang = round(ang / 3.14 * 180) - calf_lostop;
+            dang /= 10;     // reduce tenfold
+            printf("calf 7 angle: %d\n", dang);
+            st += dang * pow(calf_angle_num / 10, 7);   
+
+            // plus torso height as the 4th dim
+            //st += cur_z * pow(calf_angle_num / 10, 8);  // yeah, it's calf_angle_num
 
             printf("Current State: %" ST_FMT "\n", st);
             return st;
@@ -84,16 +137,39 @@ class MyDog: public Avatar
                 return acts;
         }
 
+        // let my dog run!
         float originalPayoff(Agent::State st)
         {
-            float fy = (float) (cur_height - 100);
-            printf("height: %d, payoff: %f\n", cur_height, fy);
-            return fy;
+            //float fy = (float) (cur_z * 10 - 70);  // height times 10
+            //printf("height: %d, payoff: %f\n", cur_z, fy);
+            //return fy;
+
+            // get forwad direction
+            const dReal *fltpos = bodyPosition(1);  // forth left thigh
+            const dReal *bltpos = bodyPosition(5);  // back left thigh
+            float fx = fltpos[0] - bltpos[0];
+            float fy = fltpos[1] - bltpos[1];
+
+            float delta_x = cur_x - pre_x;
+            float delta_y = cur_y - pre_y;
+
+            float dot_product = fx * delta_x + fy * delta_y;
+
+            float fnorm = sqrtf(fx*fx + fy*fy);
+
+            float speed = dot_product / fnorm;
+
+            printf("speed: %f, payoff: %f\n", speed, speed - 10);
+            return speed - 10;
         }
 
 
     private:
-        int cur_height;
+        int cur_x;
+        int cur_y;
+        int cur_z;
+        int pre_x;
+        int pre_y;
         int count;
 };       
 
