@@ -1,6 +1,13 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(Robots CXX)  
 
+# options
+OPTION(WITH_X11 "build with x11" ON)
+
+IF (WITH_X11)
+    ADD_DEFINITIONS("-DWITH_X11")
+ENDIF(WITH_X11)
+
 # find dependencies
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 

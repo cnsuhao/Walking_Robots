@@ -20,6 +20,13 @@
 #define dsDrawCapsule dsDrawCapsuleD
 #endif
 
+#ifndef WITH_X11
+#define dsDrawBox
+#define dsDrawSphere
+#define dsDrawCylinder
+#define dsDrawCapsule
+#endif
+
 // some constants
 #define TORSO_STARTX 0
 #define TORSO_STARTY 0
