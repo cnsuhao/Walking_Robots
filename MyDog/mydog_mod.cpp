@@ -52,7 +52,7 @@ static dSpaceID robot_space;
 static dGeomID box[9];
 
 static dReal delta_angle = 0.36;    // about 20'
-static dReal gain = 1.0;
+static dReal gain = 2.5;
 static dReal max_force = 500;
 
 // sensors

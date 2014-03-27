@@ -42,14 +42,14 @@ class BiRob: public Avatar
             // convert to positive degree
             dang = round(ang / 3.14 * 180) - thigh_lostop;
             dang /= 10;     // reduce tenfold
-            printf("thigh 0 angle: %d\n", dang);
+            //printf("thigh 0 angle: %d\n", dang);
             st += dang;   
 
             ang = hingeAngle(1);
             // convert to positive degree
             dang = round(ang / 3.14 * 180) - thigh_lostop;
             dang /= 10;     // reduce tenfold
-            printf("thigh 1 angle: %d\n", dang);
+            //printf("thigh 1 angle: %d\n", dang);
             st += dang * pow(thigh_angle_num / 10, 1);   
 
             // calfs
@@ -59,26 +59,26 @@ class BiRob: public Avatar
             // convert to positive degree
             dang = round(ang / 3.14 * 180) - calf_lostop;
             dang /= 10;     // reduce tenfold
-            printf("calf 2 angle: %d\n", dang);
+            //printf("calf 2 angle: %d\n", dang);
             st += dang * pow(thigh_angle_num / 10, 2);   // yeah, it's thigh_angle_num
 
             ang = hingeAngle(3);
             // convert to positive degree
             dang = round(ang / 3.14 * 180) - calf_lostop;
             dang /= 10;     // reduce tenfold
-            printf("calf 3 angle: %d\n", dang);
+            //printf("calf 3 angle: %d\n", dang);
             st += dang * pow(calf_angle_num / 10, 3);   
 
             // plus torso height as the 4th dim
             st += cur_height * pow(calf_angle_num / 10, 4);  // yeah, it's calf_angle_num
 
-            printf("Current State: %" ST_FMT "\n", st);
+            //printf("Current State: %" ST_FMT "\n", st);
             return st;
         }
 
         void performAction(Agent::Action act)
         {
-            printf("act: %" ACT_FMT "\n", act);
+            //printf("act: %" ACT_FMT "\n", act);
             int act_hinge;
             for (int i = 0; i < 4; i++)    // totally 4 hinges
             {
@@ -105,7 +105,8 @@ class BiRob: public Avatar
         float originalPayoff(Agent::State st)
         {
             float fy = (float) (cur_height * 10 - 65);  // height time 10
-            printf("height: %d, payoff: %f\n", cur_height, fy);
+            //printf("height: %d, payoff: %f\n", cur_height, fy);
+            printf("%f\n", fy);
             return fy;
         }
 

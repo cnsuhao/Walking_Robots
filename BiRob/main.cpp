@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     CSOSAgent agent(1, 0.95, 0.01);
     BiRob br(0);
     br.connectAgent(&agent);
-    br.setSps(2);
+    br.setSps(5);
     // launch avatar
     br.threadLoop();
 
