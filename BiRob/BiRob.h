@@ -8,6 +8,7 @@
 #ifndef BIROB_H_
 #define BIROB_H_
 #include <gamcs/Avatar.h>
+#include <math.h>
 #include "birob_mod.h"
 
 using namespace gamcs;
@@ -26,14 +27,14 @@ class BiRob: public Avatar
     private:
         Agent::State percieveState()
         {
-            const dReal *bpos = bodyPosition(0);    
-            cur_height = round(bpos[2]);   // save current torso height
+            const dReal *bpos = bodyPosition(0);
+            cur_height = round(bpos[2]);    // save current torso height
 
             // state is the combination of hinge angles
             Agent::State st = 0;
 
             // thighs
-            int thigh_angle_num =  thigh_histop - thigh_lostop;
+            int thigh_angle_num = thigh_histop - thigh_lostop;
 
             dReal ang;
             int dang;
@@ -41,36 +42,36 @@ class BiRob: public Avatar
             ang = hingeAngle(0);
             // convert to positive degree
             dang = round(ang / 3.14 * 180) - thigh_lostop;
-            dang /= 10;     // reduce tenfold
+            dang /= 10;    // reduce tenfold
             //printf("thigh 0 angle: %d\n", dang);
-            st += dang;   
+            st += dang;
 
             ang = hingeAngle(1);
             // convert to positive degree
             dang = round(ang / 3.14 * 180) - thigh_lostop;
-            dang /= 10;     // reduce tenfold
+            dang /= 10;    // reduce tenfold
             //printf("thigh 1 angle: %d\n", dang);
-            st += dang * pow(thigh_angle_num / 10, 1);   
+            st += dang * pow(thigh_angle_num / 10, 1);
 
             // calfs
             int calf_angle_num = calf_histop - calf_lostop;
-            
+
             ang = hingeAngle(2);
             // convert to positive degree
             dang = round(ang / 3.14 * 180) - calf_lostop;
-            dang /= 10;     // reduce tenfold
+            dang /= 10;    // reduce tenfold
             //printf("calf 2 angle: %d\n", dang);
-            st += dang * pow(thigh_angle_num / 10, 2);   // yeah, it's thigh_angle_num
+            st += dang * pow(thigh_angle_num / 10, 2);    // yeah, it's thigh_angle_num
 
             ang = hingeAngle(3);
             // convert to positive degree
             dang = round(ang / 3.14 * 180) - calf_lostop;
-            dang /= 10;     // reduce tenfold
+            dang /= 10;    // reduce tenfold
             //printf("calf 3 angle: %d\n", dang);
-            st += dang * pow(calf_angle_num / 10, 3);   
+            st += dang * pow(calf_angle_num / 10, 3);
 
             // plus torso height as the 4th dim
-            st += cur_height * pow(calf_angle_num / 10, 4);  // yeah, it's calf_angle_num
+            st += cur_height * pow(calf_angle_num / 10, 4);    // yeah, it's calf_angle_num
 
             //printf("Current State: %" ST_FMT "\n", st);
             return st;
@@ -93,18 +94,13 @@ class BiRob: public Avatar
         OSpace availableActions(Agent::State st)
         {
             OSpace acts;
-            if (count++ < 1000000)
-            {
-                acts.add(0, 80, 1);
-                return acts;
-            }
-            else
-                return acts;
+            acts.add(0, 80, 1);
+            return acts;
         }
 
         float originalPayoff(Agent::State st)
         {
-            float fy = (float) (cur_height * 10 - 65);  // height time 10
+            float fy = (float) (cur_height * 10 - 65);    // height time 10
             //printf("height: %d, payoff: %f\n", cur_height, fy);
             printf("%f\n", fy);
             return fy;

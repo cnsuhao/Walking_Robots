@@ -11,20 +11,12 @@
 
 #define DRAWSTUFF_TEXTURE_PATH "/home/andy/Software/ode-0.13/drawstuff/textures"
 
-
 // select correct drawing functions
 #ifdef dDOUBLE
 #define dsDrawBox dsDrawBoxD
 #define dsDrawSphere dsDrawSphereD
 #define dsDrawCylinder dsDrawCylinderD
 #define dsDrawCapsule dsDrawCapsuleD
-#endif
-
-#ifndef WITH_X11
-#define dsDrawBox
-#define dsDrawSphere
-#define dsDrawCylinder
-#define dsDrawCapsule
 #endif
 
 // some constants
@@ -35,7 +27,7 @@
 #define TORSO_LENGTH 1
 #define TORSO_WIDTH 8
 #define TORSO_HEIGHT 1
-#define TORSO_MASS 0.05
+#define TORSO_MASS 1
 
 #define THIGH_LENGTH 0.5
 #define THIGH_WIDTH 1
@@ -47,18 +39,28 @@
 #define CALF_HEIGHT 4
 #define CALF_MASS 1
 
+#define FOOT_LENGTH 1.0
+#define FOOT_WIDTH CALF_WIDTH
+#define FOOT_HEIGHT 0.3
+#define FOOT_MASS 0.1
+
 // dynamics and collision objects (torso, 4 limbs, environmet)
 static dWorldID world;
 static dSpaceID space;
-static dBodyID body[5];
-static dJointID joint[4];
+static dBodyID body[7];    // a torso + 2 thighs + 2 calfs + 2 feet
+static dJointID joint[6];
 static dJointGroupID contact_group;
 static dGeomID ground;
 static dSpaceID robot_space;
-static dGeomID box[5];
+static dGeomID box[7];    // a torso + 2 thighs + 2 calfs + 2 feet
+
+// for test
+static dBodyID shore;
+static dGeomID shore_box;
+static dJointID shore_joint;
 
 static dReal delta_angle = 0.17;    // about 10'
-static dReal gain = 6.0;  
+static dReal gain = 6.0;
 static dReal max_force = 100;
 
 // sensors
@@ -112,7 +114,7 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
     // only collide things with the ground
     if (o1 != ground && o2 != ground) return;
 
-    const int N = 100;
+    const int N = 200;
     dContact contact[N];
     n = dCollide(o1, o2, N, &contact[0].geom, sizeof(dContact));
     if (n > 0)
@@ -121,10 +123,10 @@ void nearCallback(void *data, dGeomID o1, dGeomID o2)
         {
             contact[i].surface.mode = dContactSlip1 | dContactSlip2
                     | dContactSoftERP | dContactSoftCFM | dContactApprox1;
-            contact[i].surface.mu = dInfinity;
-            contact[i].surface.slip1 = 0.1;
-            contact[i].surface.slip2 = 0.1;
-            contact[i].surface.soft_erp = 0.5;
+            contact[i].surface.mu = 0.2;
+            contact[i].surface.slip1 = 0.05;
+            contact[i].surface.slip2 = 0.05;
+            contact[i].surface.soft_erp = 0.4;
             contact[i].surface.soft_cfm = 0.3;
             dJointID c = dJointCreateContact(world, contact_group, &contact[i]);
             dJointAttach(c, dGeomGetBody(contact[i].geom.g1),
@@ -193,16 +195,20 @@ void simLoop(int pause)
     if (!pause)
     {
         // set stops
-        for (int i = 0; i < 2; i++)     // two thighs
+        for (int i = 0; i < 2; i++)    // two thighs
         {
-            dJointSetHingeParam(joint[i], dParamHiStop, thigh_histop * 3.14 / 180);   // about 90'
-            dJointSetHingeParam(joint[i], dParamLoStop, thigh_lostop * 3.14 / 180);  // about -90'
+            dJointSetHingeParam(joint[i], dParamHiStop,
+                    thigh_histop * 3.14 / 180);    // about 90'
+            dJointSetHingeParam(joint[i], dParamLoStop,
+                    thigh_lostop * 3.14 / 180);    // about -90'
         }
 
-        for (int i = 2; i < 4; i++)     // two calfs
+        for (int i = 2; i < 4; i++)    // two calfs
         {
-            dJointSetHingeParam(joint[i], dParamHiStop, calf_histop * 3.14 / 180);   // about 0'
-            dJointSetHingeParam(joint[i], dParamLoStop, calf_lostop * 3.14 / 180);  // about -180'
+            dJointSetHingeParam(joint[i], dParamHiStop,
+                    calf_histop * 3.14 / 180);    // about 0'
+            dJointSetHingeParam(joint[i], dParamLoStop,
+                    calf_lostop * 3.14 / 180);    // about -180'
         }
 
         dSpaceCollide(space, 0, &nearCallback);
@@ -233,6 +239,12 @@ void simLoop(int pause)
 
     dReal rc_sides[3] = { CALF_LENGTH, CALF_WIDTH, CALF_HEIGHT };
     dsDrawBox(dBodyGetPosition(body[4]), dBodyGetRotation(body[4]), rc_sides);
+
+    dReal lf_sides[3] = { FOOT_LENGTH, FOOT_WIDTH, FOOT_HEIGHT };
+    dsDrawBox(dBodyGetPosition(body[5]), dBodyGetRotation(body[5]), lf_sides);
+
+    dReal rf_sides[3] = { FOOT_LENGTH, FOOT_WIDTH, FOOT_HEIGHT };
+    dsDrawBox(dBodyGetPosition(body[6]), dBodyGetRotation(body[6]), rf_sides);
 }
 
 void initModel()
@@ -245,6 +257,12 @@ void initModel()
     contact_group = dJointGroupCreate(0);
     dWorldSetGravity(world, 0, 0, -9.8);
     ground = dCreatePlane(space, 0, 0, 1, 0);
+
+    // for test
+    shore = dBodyCreate(world);
+    dBodySetPosition(shore, TORSO_STARTX, TORSO_STARTY, TORSO_STARTZ);
+    shore_box = dCreateBox(0, 1, 1, 1);
+    dGeomSetBody(shore_box, shore);
 
     // robot torso
     body[0] = dBodyCreate(world);
@@ -295,34 +313,87 @@ void initModel()
     box[4] = dCreateBox(0, CALF_LENGTH, CALF_WIDTH, CALF_HEIGHT);
     dGeomSetBody(box[4], body[4]);
 
+    // left foot
+    body[5] = dBodyCreate(world);
+    dBodySetPosition(body[5], TORSO_STARTX + (CALF_LENGTH + FOOT_LENGTH) * 0.5,
+            -0.5 * (TORSO_WIDTH - THIGH_WIDTH),
+            TORSO_STARTZ
+                    - 0.5
+                            * (TORSO_HEIGHT - FOOT_HEIGHT)- THIGH_HEIGHT - CALF_HEIGHT);
+    dMassSetBox(&m, 1, FOOT_LENGTH, FOOT_WIDTH, FOOT_HEIGHT);
+    dMassAdjust(&m, FOOT_MASS);
+    dBodySetMass(body[5], &m);
+    box[5] = dCreateBox(0, FOOT_LENGTH, FOOT_WIDTH, FOOT_HEIGHT);
+    dGeomSetBody(box[5], body[5]);
+
+    // right foot
+    body[6] = dBodyCreate(world);
+    dBodySetPosition(body[6], TORSO_STARTX + (CALF_LENGTH + FOOT_LENGTH) * 0.5,
+            0.5 * (TORSO_WIDTH - THIGH_WIDTH),
+            TORSO_STARTZ
+                    - 0.5
+                            * (TORSO_HEIGHT - FOOT_HEIGHT)- THIGH_HEIGHT - CALF_HEIGHT);
+    dMassSetBox(&m, 1, FOOT_LENGTH, FOOT_WIDTH, FOOT_HEIGHT);
+    dMassAdjust(&m, FOOT_MASS);
+    dBodySetMass(body[6], &m);
+    box[6] = dCreateBox(0, FOOT_LENGTH, FOOT_WIDTH, FOOT_HEIGHT);
+    dGeomSetBody(box[6], body[6]);
+
     // hinges
+
+    // fix shore to world
+    dJointID fix_point = dJointCreateFixed(world, 0);
+    dJointAttach(fix_point, NULL, shore);
+    dJointSetFixed(fix_point);
+
+    // for test shore --> torso
+    shore_joint = dJointCreatePiston(world, 0);
+    dJointAttach(shore_joint, shore, body[0]);
+    dJointSetPistonAnchor(shore_joint, TORSO_STARTX, TORSO_STARTY,
+    TORSO_STARTZ);
+    dJointSetPistonAxis(shore_joint, 0, 0, 1);
+
     // left thigh --> torso
     joint[0] = dJointCreateHinge(world, 0);
     dJointAttach(joint[0], body[0], body[1]);
-    dJointSetHingeAnchor(joint[0], TORSO_STARTX, -0.5 * (TORSO_WIDTH - THIGH_WIDTH),
-    TORSO_STARTZ - 0.5 * TORSO_HEIGHT);
+    dJointSetHingeAnchor(joint[0], TORSO_STARTX,
+            -0.5 * (TORSO_WIDTH - THIGH_WIDTH),
+            TORSO_STARTZ - 0.5 * TORSO_HEIGHT);
     dJointSetHingeAxis(joint[0], 0, 1, 0);    // along y axis
 
     // right thigh --> torso
     joint[1] = dJointCreateHinge(world, 0);
     dJointAttach(joint[1], body[0], body[2]);
-    dJointSetHingeAnchor(joint[1], TORSO_STARTX, 0.5 * (TORSO_WIDTH - THIGH_WIDTH),
-    TORSO_STARTZ - 0.5 * TORSO_HEIGHT);
+    dJointSetHingeAnchor(joint[1], TORSO_STARTX,
+            0.5 * (TORSO_WIDTH - THIGH_WIDTH),
+            TORSO_STARTZ - 0.5 * TORSO_HEIGHT);
     dJointSetHingeAxis(joint[1], 0, 1, 0);
 
     // left calf --> left thigh
     joint[2] = dJointCreateHinge(world, 0);
     dJointAttach(joint[2], body[1], body[3]);
-    dJointSetHingeAnchor(joint[2], TORSO_STARTX, -0.5 * (TORSO_WIDTH - THIGH_WIDTH),
-    TORSO_STARTZ - 0.5 * TORSO_HEIGHT - THIGH_HEIGHT);
+    dJointSetHingeAnchor(joint[2], TORSO_STARTX,
+            -0.5 * (TORSO_WIDTH - THIGH_WIDTH),
+            TORSO_STARTZ - 0.5 * TORSO_HEIGHT - THIGH_HEIGHT);
     dJointSetHingeAxis(joint[2], 0, 1, 0);
 
     // right calf --> right thigh
     joint[3] = dJointCreateHinge(world, 0);
     dJointAttach(joint[3], body[2], body[4]);
-    dJointSetHingeAnchor(joint[3], TORSO_STARTX, 0.5 * (TORSO_WIDTH - THIGH_WIDTH),
-    TORSO_STARTZ - 0.5 * TORSO_HEIGHT - THIGH_HEIGHT);
+    dJointSetHingeAnchor(joint[3], TORSO_STARTX,
+            0.5 * (TORSO_WIDTH - THIGH_WIDTH),
+            TORSO_STARTZ - 0.5 * TORSO_HEIGHT - THIGH_HEIGHT);
     dJointSetHingeAxis(joint[3], 0, 1, 0);
+
+    // left calf --> left foot
+    joint[4] = dJointCreateFixed(world, 0);
+    dJointAttach(joint[4], body[3], body[5]);
+    dJointSetFixed(joint[4]);
+
+    // right calf --> right foot
+    joint[5] = dJointCreateFixed(world, 0);
+    dJointAttach(joint[5], body[4], body[6]);
+    dJointSetFixed(joint[5]);
 
     // set joint suspension
     for (i = 0; i < 4; i++)
@@ -334,7 +405,7 @@ void initModel()
     // create robot space and add it to the top level space
     robot_space = dSimpleSpaceCreate(space);
     dSpaceSetCleanup(robot_space, 0);
-    for (i = 0; i < 5; i++)
+    for (i = 0; i < 7; i++)
         dSpaceAdd(robot_space, box[i]);
 
     // environment
@@ -343,7 +414,7 @@ void initModel()
 void destroyModel()
 {
     // cleanup
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 7; i++)
         dGeomDestroy(box[i]);
 
     dJointGroupEmpty(contact_group);
