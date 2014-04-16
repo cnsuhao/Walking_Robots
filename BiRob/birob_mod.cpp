@@ -259,10 +259,10 @@ void initModel()
     ground = dCreatePlane(space, 0, 0, 1, 0);
 
     // for test
-    shore = dBodyCreate(world);
-    dBodySetPosition(shore, TORSO_STARTX, TORSO_STARTY, TORSO_STARTZ);
-    shore_box = dCreateBox(0, 1, 1, 1);
-    dGeomSetBody(shore_box, shore);
+    //shore = dBodyCreate(world);
+    //dBodySetPosition(shore, TORSO_STARTX, TORSO_STARTY, TORSO_STARTZ);
+    //shore_box = dCreateBox(0, 1, 1, 1);
+    //dGeomSetBody(shore_box, shore);
 
     // robot torso
     body[0] = dBodyCreate(world);
@@ -342,16 +342,16 @@ void initModel()
     // hinges
 
     // fix shore to world
-    dJointID fix_point = dJointCreateFixed(world, 0);
-    dJointAttach(fix_point, NULL, shore);
-    dJointSetFixed(fix_point);
+    //dJointID fix_point = dJointCreateFixed(world, 0);
+    //dJointAttach(fix_point, NULL, shore);
+    //dJointSetFixed(fix_point);
 
     // for test shore --> torso
-    shore_joint = dJointCreatePiston(world, 0);
-    dJointAttach(shore_joint, shore, body[0]);
-    dJointSetPistonAnchor(shore_joint, TORSO_STARTX, TORSO_STARTY,
-    TORSO_STARTZ);
-    dJointSetPistonAxis(shore_joint, 0, 0, 1);
+    //shore_joint = dJointCreatePiston(world, 0);
+    //dJointAttach(shore_joint, shore, body[0]);
+    //dJointSetPistonAnchor(shore_joint, TORSO_STARTX, TORSO_STARTY,
+    //TORSO_STARTZ);
+    //dJointSetPistonAxis(shore_joint, 0, 0, 1);
 
     // left thigh --> torso
     joint[0] = dJointCreateHinge(world, 0);

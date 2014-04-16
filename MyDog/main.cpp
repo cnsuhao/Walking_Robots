@@ -38,9 +38,8 @@ int main(int argc, char **argv)
     CSOSAgent agent(1, 0.9, 0.01);
     MyDog dog(0);
     dog.connectAgent(&agent);
-    dog.setSps(5);
     // launch avatar
-    dog.threadLoop();
+    dog.threadLoop(5);
 
     // simulate the world
     dsSimulationLoop(argc, argv, 352, 288, &fn);

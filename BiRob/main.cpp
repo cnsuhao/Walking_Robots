@@ -22,23 +22,25 @@ void *thread_avatar(void *args)
     // set up Agent and Avatar
     printf("start avatar ...\n");
 
-    // BiRob *****************************
 //    Mysql mysql;
 //    mysql.setDBArgs("localhost", "root", "huangk", "BiRob");
 //
-//    CSOSAgent agent(1, 0.95, 0.01);
-//    BiRob br(0);
-//    br.connectAgent(&agent);
-//    // launch avatar
-//    unsigned long count = 0;
-//    while (count < 99999999)
-//    {
-//        br.step();
-//
-//        count++;
-//        usleep(200000);
-//    }
+    // BiRob *****************************
+    //CSOSAgent agent(1, 0.95, 0.01);
+    //BiRob br(0);
+    //br.connectAgent(&agent);
+    //// launch avatar
+    //unsigned long count = 0;
+    //while (count < 99999999)
+    //{
+    //    br.step();
+
+    //    count++;
+    //    usleep(200000);
+    //}
+
     // ***********************************
+
     // Cells *****************************
     printf("start cells\n");
     CellGroup cell_group;
@@ -48,7 +50,7 @@ void *thread_avatar(void *args)
         cell_group.groupStep();
 
         count++;
-        usleep(200000);
+        usleep(200000);     // sleep 200ms
     }
 
     // ***********************************
